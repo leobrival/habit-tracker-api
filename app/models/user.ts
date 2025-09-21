@@ -22,6 +22,8 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column({ serializeAs: null })
   declare password: string
 
+  // Relations will be loaded when needed using preload() in controllers
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
