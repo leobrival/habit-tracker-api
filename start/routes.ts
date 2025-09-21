@@ -7,10 +7,10 @@
 |
 */
 
-import router from '@adonisjs/core/services/router'
-import { middleware } from './kernel.js'
-import AutoSwagger from 'adonis-autoswagger'
 import swagger from '#config/swagger'
+import router from '@adonisjs/core/services/router'
+import AutoSwagger from 'adonis-autoswagger'
+import { middleware } from './kernel.js'
 
 const AuthController = () => import('#controllers/auth_controller')
 const BoardsController = () => import('#controllers/boards_controller')
@@ -23,7 +23,24 @@ router.get('/', async () => {
   }
 })
 
-// Swagger Documentation Routes
+// Health check route
+router.get('/health', async ({ response }) => {
+  try {
+    return response.status(200).json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      service: 'habit-tracker',
+      uptime: Math.floor(process.uptime()) + 's',
+    })
+  } catch (error) {
+    return response.status(503).json({
+      status: 'error',
+      service: 'habit-tracker',
+    })
+  }
+})
+
+// Swagger documentation routes
 router.get('/swagger', async () => {
   return AutoSwagger.default.docs(router.toJSON(), swagger)
 })
