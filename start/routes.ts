@@ -13,7 +13,6 @@ import AutoSwagger from 'adonis-autoswagger'
 import { middleware } from './kernel.js'
 
 const AuthController = () => import('#controllers/auth_controller')
-const SupabaseAuthController = () => import('#controllers/supabase_auth_controller')
 const BoardsController = () => import('#controllers/boards_controller')
 const UsersController = () => import('#controllers/users_controller')
 const CheckInsController = () => import('#controllers/check_ins_controller')
@@ -50,26 +49,15 @@ router.get('/docs', async () => {
   return AutoSwagger.default.ui('/swagger', swagger)
 })
 
-// Authentication routes
+// Authentication routes (using Supabase Auth)
 router
   .group(() => {
     router.post('/login', [AuthController, 'login'])
     router.post('/register', [AuthController, 'register'])
-    router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
-    router.get('/me', [AuthController, 'me']).use(middleware.auth())
-    router.post('/refresh-token', [AuthController, 'refreshToken']).use(middleware.auth())
+    router.post('/logout', [AuthController, 'logout'])
+    router.get('/me', [AuthController, 'me'])
   })
   .prefix('/api/auth')
-
-// Supabase Authentication routes
-router
-  .group(() => {
-    router.post('/login', [SupabaseAuthController, 'login'])
-    router.post('/register', [SupabaseAuthController, 'register'])
-    router.post('/logout', [SupabaseAuthController, 'logout'])
-    router.get('/me', [SupabaseAuthController, 'me'])
-  })
-  .prefix('/api/auth/supabase')
 
 // Protected API routes
 router
