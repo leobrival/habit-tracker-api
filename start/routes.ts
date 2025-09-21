@@ -13,6 +13,7 @@ import AutoSwagger from 'adonis-autoswagger'
 import { middleware } from './kernel.js'
 
 const AuthController = () => import('#controllers/auth_controller')
+const SupabaseAuthController = () => import('#controllers/supabase_auth_controller')
 const BoardsController = () => import('#controllers/boards_controller')
 const UsersController = () => import('#controllers/users_controller')
 const CheckInsController = () => import('#controllers/check_ins_controller')
@@ -59,6 +60,16 @@ router
     router.post('/refresh-token', [AuthController, 'refreshToken']).use(middleware.auth())
   })
   .prefix('/api/auth')
+
+// Supabase Authentication routes
+router
+  .group(() => {
+    router.post('/login', [SupabaseAuthController, 'login'])
+    router.post('/register', [SupabaseAuthController, 'register'])
+    router.post('/logout', [SupabaseAuthController, 'logout'])
+    router.get('/me', [SupabaseAuthController, 'me'])
+  })
+  .prefix('/api/auth/supabase')
 
 // Protected API routes
 router
