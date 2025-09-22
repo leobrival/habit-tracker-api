@@ -2,6 +2,7 @@ import Board from '#models/board'
 import User from '#models/user'
 import { createBoardValidator, updateBoardValidator } from '#validators/board'
 import type { HttpContext } from '@adonisjs/core/http'
+import { UnitHelper } from '../constants/units.js'
 
 // Extend HttpContext to include user property
 interface AuthenticatedHttpContext extends HttpContext {
@@ -75,10 +76,21 @@ export default class BoardsController {
   async store({ request, user, response }: AuthenticatedHttpContext) {
     const data = await request.validateUsing(createBoardValidator)
 
-    const board = await Board.create({
+    // Auto-assign unit defaults if quantity board with unit but no defaultValue specified
+    let boardData = {
       ...data,
       userId: user.id,
-    })
+    }
+
+    if (data.isQuantity && data.unit && data.defaultValue === undefined) {
+      const unitInfo = UnitHelper.getUnitByName(data.unit)
+      if (unitInfo) {
+        boardData.defaultValue = unitInfo.defaultValue
+        boardData.unitSymbol = unitInfo.symbol
+      }
+    }
+
+    const board = await Board.create(boardData)
 
     return response.created({ board })
   }

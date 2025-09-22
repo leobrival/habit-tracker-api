@@ -1,8 +1,8 @@
-import { DateTime } from 'luxon'
-import { BaseModel, column, belongsTo, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
-import User from './user.js'
+import { DateTime } from 'luxon'
 import CheckIn from './check_in.js'
+import User from './user.js'
 
 export default class Board extends BaseModel {
   @column({ isPrimary: true })
@@ -12,10 +12,19 @@ export default class Board extends BaseModel {
   declare name: string
 
   @column()
-  declare description: string | null
+  declare userId: number
 
   @column()
-  declare userId: number
+  declare isQuantity: boolean
+
+  @column()
+  declare defaultValue: number | null
+
+  @column()
+  declare unit: string | null
+
+  @column()
+  declare unitSymbol: string | null
 
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>

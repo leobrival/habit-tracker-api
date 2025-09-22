@@ -20,7 +20,9 @@ const supabase = createClient(env.get('SUPABASE_URL', ''), env.get('SUPABASE_ANO
  *           format: email
  *         password:
  *           type: string
- *           minLength: 6
+ *           minLength: 12
+ *           pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$'
+ *           description: 'Password must be at least 12 characters and contain lowercase, uppercase, digit and symbol'
  *     SupabaseRegisterRequest:
  *       type: object
  *       required:
@@ -33,7 +35,9 @@ const supabase = createClient(env.get('SUPABASE_URL', ''), env.get('SUPABASE_ANO
  *           format: email
  *         password:
  *           type: string
- *           minLength: 6
+ *           minLength: 12
+ *           pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$'
+ *           description: 'Password must be at least 12 characters and contain lowercase, uppercase, digit and symbol'
  *         fullName:
  *           type: string
  */

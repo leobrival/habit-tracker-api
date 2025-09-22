@@ -119,7 +119,10 @@ test.group('API Workflow Integration Tests', (group) => {
   test('should create a new board', async ({ assert }) => {
     const boardData = {
       name: 'Integration Test Board',
-      description: 'Test board created by integration test',
+      isQuantity: true,
+      defaultValue: 25,
+      unit: 'minutes',
+      unitSymbol: 'min',
     }
 
     const response = await globalClient
@@ -131,7 +134,10 @@ test.group('API Workflow Integration Tests', (group) => {
 
     assert.properties(response.body(), ['board'])
     assert.equal(response.body().board.name, boardData.name)
-    assert.equal(response.body().board.description, boardData.description)
+    assert.equal(response.body().board.isQuantity, boardData.isQuantity)
+    assert.equal(response.body().board.defaultValue, boardData.defaultValue)
+    assert.equal(response.body().board.unit, boardData.unit)
+    assert.equal(response.body().board.unitSymbol, boardData.unitSymbol)
     assert.equal(response.body().board.userId, createdUserData!.userId)
 
     createdBoardId = response.body().board.id
@@ -170,7 +176,10 @@ test.group('API Workflow Integration Tests', (group) => {
   test('should update board', async ({ assert }) => {
     const updateData = {
       name: 'Updated Integration Test Board',
-      description: 'Updated description by integration test',
+      isQuantity: false,
+      defaultValue: null,
+      unit: null,
+      unitSymbol: null,
     }
 
     const response = await globalClient
@@ -183,7 +192,10 @@ test.group('API Workflow Integration Tests', (group) => {
     assert.properties(response.body(), ['board'])
     assert.equal(response.body().board.id, createdBoardId)
     assert.equal(response.body().board.name, updateData.name)
-    assert.equal(response.body().board.description, updateData.description)
+    assert.equal(response.body().board.isQuantity, updateData.isQuantity)
+    assert.equal(response.body().board.defaultValue, updateData.defaultValue)
+    assert.equal(response.body().board.unit, updateData.unit)
+    assert.equal(response.body().board.unitSymbol, updateData.unitSymbol)
 
     console.log(`✅ Board updated: ${response.body().board.name}`)
   })

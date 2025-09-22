@@ -6,6 +6,9 @@ export const createCheckInValidator = vine.compile(
     checkDate: vine.date(),
     notes: vine.string().trim().optional(),
     completed: vine.boolean().optional(),
+    value: vine.number().optional(),
+    unit: vine.string().trim().optional(),
+    unitSymbol: vine.string().trim().optional(),
   })
 )
 
@@ -15,5 +18,8 @@ export const updateCheckInValidator = vine.compile(
     checkDate: vine.date().optional(),
     notes: vine.string().trim().optional(),
     completed: vine.boolean().optional(),
+    value: vine.number().optional(),
+    unit: vine.string().trim().optional(),
+    unitSymbol: vine.string().trim().optional(),
   })
 )

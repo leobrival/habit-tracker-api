@@ -1,9 +1,9 @@
-import type { HttpContext } from '@adonisjs/core/http'
-import { DateTime } from 'luxon'
-import CheckIn from '#models/check_in'
 import Board from '#models/board'
+import CheckIn from '#models/check_in'
 import User from '#models/user'
 import { createCheckInValidator, updateCheckInValidator } from '#validators/check_in'
+import type { HttpContext } from '@adonisjs/core/http'
+import { DateTime } from 'luxon'
 
 // Extend HttpContext to include user property
 interface AuthenticatedHttpContext extends HttpContext {
@@ -31,15 +31,31 @@ export default class CheckInsController {
   async store({ request, user, response }: AuthenticatedHttpContext) {
     const data = await request.validateUsing(createCheckInValidator)
 
-    await Board.query().where('id', data.boardId).where('user_id', user.id).firstOrFail()
+    const board = await Board.query()
+      .where('id', data.boardId)
+      .where('user_id', user.id)
+      .firstOrFail()
 
-    const checkIn = await CheckIn.create({
+    // Auto-assign board defaults for quantity boards if values not specified
+    let checkInData = {
       boardId: data.boardId,
       userId: user.id,
       checkDate: DateTime.fromJSDate(data.checkDate),
       notes: data.notes,
       completed: data.completed ?? true,
-    })
+      value: data.value,
+      unit: data.unit,
+      unitSymbol: data.unitSymbol,
+    }
+
+    // If quantity board and no values specified, use board defaults
+    if (board.isQuantity && data.value === undefined) {
+      checkInData.value = board.defaultValue ?? undefined
+      checkInData.unit = board.unit ?? undefined
+      checkInData.unitSymbol = board.unitSymbol ?? undefined
+    }
+
+    const checkIn = await CheckIn.create(checkInData)
 
     await checkIn.load('board')
 
