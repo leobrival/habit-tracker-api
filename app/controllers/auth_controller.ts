@@ -127,62 +127,71 @@ export default class AuthController {
    *         description: Registration failed
    */
   async register({ request, response, session }: HttpContext) {
-    const { email, password, fullName } = request.only(['email', 'password', 'fullName'])
+    try {
+      const { email, password, fullName } = request.only(['email', 'password', 'fullName'])
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
         },
-      },
-    })
+      })
 
-    if (error) {
+      if (error) {
+        return response.status(400).json({
+          message: 'Registration failed',
+          error: error.message,
+        })
+      }
+
+      if (!data.user) {
+        return response.status(400).json({
+          message: 'Registration failed',
+        })
+      }
+
+      // The user profile should be automatically created by the trigger
+      // Wait a moment and try to find it
+      let user = await User.query().where('auth_user_id', data.user.id).first()
+
+      if (!user) {
+        // If trigger didn't work, create manually
+        user = await User.create({
+          authUserId: data.user.id,
+          email: data.user.email!,
+          fullName: fullName,
+          password: 'auth_managed', // Placeholder
+        })
+      }
+
+      // Store user session
+      session.put('auth_user_id', data.user.id)
+      session.put('user_id', user.id)
+
+      return response.status(201).json({
+        message: 'Registration successful',
+        user: {
+          id: user.id,
+          email: user.email,
+          fullName: user.fullName,
+          authUserId: data.user.id,
+        },
+        session: {
+          access_token: data.session?.access_token,
+          refresh_token: data.session?.refresh_token,
+        },
+      })
+    } catch (error) {
+      console.error('Registration error:', error)
       return response.status(400).json({
         message: 'Registration failed',
-        error: error.message,
+        error: 'Database error saving new user',
+        details: error.message || 'Unknown error',
       })
     }
-
-    if (!data.user) {
-      return response.status(400).json({
-        message: 'Registration failed',
-      })
-    }
-
-    // The user profile should be automatically created by the trigger
-    // Wait a moment and try to find it
-    let user = await User.query().where('auth_user_id', data.user.id).first()
-
-    if (!user) {
-      // If trigger didn't work, create manually
-      user = await User.create({
-        authUserId: data.user.id,
-        email: data.user.email!,
-        fullName: fullName,
-        password: 'auth_managed', // Placeholder
-      })
-    }
-
-    // Store user session
-    session.put('auth_user_id', data.user.id)
-    session.put('user_id', user.id)
-
-    return response.status(201).json({
-      message: 'Registration successful',
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        authUserId: data.user.id,
-      },
-      session: {
-        access_token: data.session?.access_token,
-        refresh_token: data.session?.refresh_token,
-      },
-    })
   }
 
   /**

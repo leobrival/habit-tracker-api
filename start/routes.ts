@@ -16,12 +16,7 @@ const AuthController = () => import('#controllers/auth_controller')
 const BoardsController = () => import('#controllers/boards_controller')
 const UsersController = () => import('#controllers/users_controller')
 const CheckInsController = () => import('#controllers/check_ins_controller')
-
-router.get('/', async () => {
-  return {
-    hello: 'world',
-  }
-})
+const TestController = () => import('#controllers/test_controller')
 
 // Health check route
 router.get('/health', async ({ response }) => {
@@ -49,6 +44,11 @@ router.get('/docs', async () => {
   return AutoSwagger.default.ui('/swagger', swagger)
 })
 
+// Test routes (only available in development)
+if (process.env.NODE_ENV === 'development') {
+  router.post('/api/test/confirm-email', [TestController, 'confirmEmail'])
+}
+
 // Authentication routes (using Supabase Auth)
 router
   .group(() => {
@@ -72,4 +72,4 @@ router
     router.resource('check-ins', CheckInsController).except(['create', 'edit'])
   })
   .prefix('/api')
-  .use(middleware.auth())
+  .use(middleware.supabaseAuth())

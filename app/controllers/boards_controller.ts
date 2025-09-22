@@ -1,6 +1,12 @@
-import type { HttpContext } from '@adonisjs/core/http'
 import Board from '#models/board'
+import User from '#models/user'
 import { createBoardValidator, updateBoardValidator } from '#validators/board'
+import type { HttpContext } from '@adonisjs/core/http'
+
+// Extend HttpContext to include user property
+interface AuthenticatedHttpContext extends HttpContext {
+  user: User
+}
 
 /**
  * @swagger
@@ -57,8 +63,7 @@ import { createBoardValidator, updateBoardValidator } from '#validators/board'
  */
 
 export default class BoardsController {
-  async index({ auth, response }: HttpContext) {
-    const user = auth.use('web').user!
+  async index({ user, response }: AuthenticatedHttpContext) {
     const boards = await Board.query()
       .where('user_id', user.id)
       .preload('checkIns')
@@ -67,8 +72,7 @@ export default class BoardsController {
     return response.ok({ boards })
   }
 
-  async store({ request, auth, response }: HttpContext) {
-    const user = auth.use('web').user!
+  async store({ request, user, response }: AuthenticatedHttpContext) {
     const data = await request.validateUsing(createBoardValidator)
 
     const board = await Board.create({
@@ -79,8 +83,7 @@ export default class BoardsController {
     return response.created({ board })
   }
 
-  async show({ params, auth, response }: HttpContext) {
-    const user = auth.use('web').user!
+  async show({ params, user, response }: AuthenticatedHttpContext) {
     const board = await Board.query()
       .where('id', params.id)
       .where('user_id', user.id)
@@ -90,8 +93,7 @@ export default class BoardsController {
     return response.ok({ board })
   }
 
-  async update({ params, request, auth, response }: HttpContext) {
-    const user = auth.use('web').user!
+  async update({ params, request, user, response }: AuthenticatedHttpContext) {
     const data = await request.validateUsing(updateBoardValidator)
 
     const board = await Board.query().where('id', params.id).where('user_id', user.id).firstOrFail()
@@ -102,8 +104,7 @@ export default class BoardsController {
     return response.ok({ board })
   }
 
-  async destroy({ params, auth, response }: HttpContext) {
-    const user = auth.use('web').user!
+  async destroy({ params, user, response }: AuthenticatedHttpContext) {
     const board = await Board.query().where('id', params.id).where('user_id', user.id).firstOrFail()
 
     await board.delete()

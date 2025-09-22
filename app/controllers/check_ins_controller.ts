@@ -2,11 +2,16 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 import CheckIn from '#models/check_in'
 import Board from '#models/board'
+import User from '#models/user'
 import { createCheckInValidator, updateCheckInValidator } from '#validators/check_in'
 
+// Extend HttpContext to include user property
+interface AuthenticatedHttpContext extends HttpContext {
+  user: User
+}
+
 export default class CheckInsController {
-  async index({ auth, request, response }: HttpContext) {
-    const user = auth.use('web').user!
+  async index({ user, request, response }: AuthenticatedHttpContext) {
     const boardId = request.input('board_id')
 
     let query = CheckIn.query()
@@ -23,8 +28,7 @@ export default class CheckInsController {
     return response.ok({ checkIns })
   }
 
-  async store({ request, auth, response }: HttpContext) {
-    const user = auth.use('web').user!
+  async store({ request, user, response }: AuthenticatedHttpContext) {
     const data = await request.validateUsing(createCheckInValidator)
 
     await Board.query()
@@ -45,8 +49,7 @@ export default class CheckInsController {
     return response.created({ checkIn })
   }
 
-  async show({ params, auth, response }: HttpContext) {
-    const user = auth.use('web').user!
+  async show({ params, user, response }: AuthenticatedHttpContext) {
     const checkIn = await CheckIn.query()
       .where('id', params.id)
       .where('user_id', user.id)
@@ -56,8 +59,7 @@ export default class CheckInsController {
     return response.ok({ checkIn })
   }
 
-  async update({ params, request, auth, response }: HttpContext) {
-    const user = auth.use('web').user!
+  async update({ params, request, user, response }: AuthenticatedHttpContext) {
     const data = await request.validateUsing(updateCheckInValidator)
 
     const checkIn = await CheckIn.query()
@@ -80,8 +82,7 @@ export default class CheckInsController {
     return response.ok({ checkIn })
   }
 
-  async destroy({ params, auth, response }: HttpContext) {
-    const user = auth.use('web').user!
+  async destroy({ params, user, response }: AuthenticatedHttpContext) {
     const checkIn = await CheckIn.query()
       .where('id', params.id)
       .where('user_id', user.id)
