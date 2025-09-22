@@ -10,7 +10,8 @@ export default {
   info: {
     title: 'Habit Tracker API',
     version: '1.0.0',
-    description: 'A comprehensive API for tracking habits with users, boards, and check-ins functionality',
+    description:
+      'A comprehensive API for tracking habits with users, boards, and check-ins functionality',
   },
   snakeCase: false,
   debug: false,

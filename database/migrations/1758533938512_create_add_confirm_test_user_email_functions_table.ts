@@ -57,10 +57,10 @@ export default class extends BaseSchema {
   async down() {
     // Drop the trigger first
     this.schema.raw('DROP TRIGGER IF EXISTS auto_confirm_test_emails_trigger ON auth.users;')
-    
+
     // Drop the trigger function
     this.schema.raw('DROP FUNCTION IF EXISTS auto_confirm_test_emails();')
-    
+
     // Drop the RPC function
     this.schema.raw('DROP FUNCTION IF EXISTS confirm_test_user_email(UUID);')
   }

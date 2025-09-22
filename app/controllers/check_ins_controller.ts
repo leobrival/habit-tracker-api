@@ -31,10 +31,7 @@ export default class CheckInsController {
   async store({ request, user, response }: AuthenticatedHttpContext) {
     const data = await request.validateUsing(createCheckInValidator)
 
-    await Board.query()
-      .where('id', data.boardId)
-      .where('user_id', user.id)
-      .firstOrFail()
+    await Board.query().where('id', data.boardId).where('user_id', user.id).firstOrFail()
 
     const checkIn = await CheckIn.create({
       boardId: data.boardId,

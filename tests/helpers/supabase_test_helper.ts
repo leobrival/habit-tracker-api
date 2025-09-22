@@ -1,6 +1,6 @@
+import User from '#models/user'
 import env from '#start/env'
 import { createClient } from '@supabase/supabase-js'
-import User from '#models/user'
 
 export interface TestUserData {
   email: string
@@ -12,20 +12,17 @@ export interface TestUserData {
  * Helper class for managing Supabase test users
  */
 export class SupabaseTestHelper {
-  private supabase = createClient(
-    env.get('SUPABASE_URL', ''),
-    env.get('SUPABASE_ANON_KEY', '')
-  )
+  private supabase = createClient(env.get('SUPABASE_URL', ''), env.get('SUPABASE_ANON_KEY', ''))
 
   /**
    * Creates a test user with a unique email
    */
-  static generateTestUser(suffix?: string): TestUserData {
+  static generateTestUser(_suffix?: string): TestUserData {
     // Use the existing test user that we know works
     return {
       email: 'test.e2e.fixed@gmail.com',
       password: 'TestE2E123!',
-      fullName: 'E2E Test User'
+      fullName: 'E2E Test User',
     }
   }
 
@@ -54,7 +51,7 @@ export class SupabaseTestHelper {
 
     // 2. Find or create user in our database
     let user = await User.query().where('auth_user_id', signUpData.user.id).first()
-    
+
     if (!user) {
       user = await User.create({
         authUserId: signUpData.user.id,
@@ -69,7 +66,7 @@ export class SupabaseTestHelper {
     return {
       userId: user.id,
       authUserId: signUpData.user.id,
-      email: userData.email
+      email: userData.email,
     }
   }
 
@@ -85,7 +82,10 @@ export class SupabaseTestHelper {
   /**
    * Signs in a test user and returns session data
    */
-  async signInUser(email: string, password: string): Promise<{
+  async signInUser(
+    email: string,
+    password: string
+  ): Promise<{
     user: any
     session: any
   }> {
@@ -100,7 +100,7 @@ export class SupabaseTestHelper {
 
     return {
       user: data.user,
-      session: data.session
+      session: data.session,
     }
   }
 
@@ -131,7 +131,7 @@ export class SupabaseTestHelper {
     const fixedUserData: TestUserData = {
       email: 'test.integration.fixed@gmail.com',
       password: 'TestIntegration123!',
-      fullName: 'Fixed Integration Test User'
+      fullName: 'Fixed Integration Test User',
     }
 
     try {
@@ -139,18 +139,16 @@ export class SupabaseTestHelper {
       return await this.createAndConfirmUser(fixedUserData)
     } catch (error) {
       // If user already exists, try to find them
-      const existingUser = await User.query()
-        .where('email', fixedUserData.email)
-        .first()
+      const existingUser = await User.query().where('email', fixedUserData.email).first()
 
       if (existingUser && existingUser.authUserId) {
         // Ensure email is confirmed
         await this.confirmUserEmail(existingUser.authUserId)
-        
+
         return {
           userId: existingUser.id,
           authUserId: existingUser.authUserId,
-          email: existingUser.email
+          email: existingUser.email,
         }
       }
 

@@ -25,9 +25,9 @@ export default class TestIntegration extends BaseCommand {
     }
 
     const template = this.getTestTemplate(testName)
-    
+
     await writeFile(filePath, template, 'utf8')
-    
+
     this.logger.success(`Integration test created: ${filePath}`)
   }
 
