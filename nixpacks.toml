@@ -1,11 +1,11 @@
 [phases.setup]
-nixPkgs = ['nodejs_18', 'npm-9_x']
+nixPkgs = ['nodejs_20', 'pnpm']
 
 [phases.install]
-cmds = ['npm ci']
+cmds = ['pnpm install --frozen-lockfile']
 
 [phases.build]
-cmds = ['npm run build']
+cmds = ['pnpm build', 'cd build && pnpm install --prod --frozen-lockfile']
 
 [start]
-cmd = 'cd build && npm ci --omit=dev && node bin/server.js'
+cmd = 'cd build && node bin/server.js'
