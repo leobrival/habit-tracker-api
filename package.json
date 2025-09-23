@@ -13,8 +13,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "debug:env": "node scripts/check-env.js",
-    "debug:railway": "node scripts/railway-debug.js"
+    "debug:env": "node scripts/check-env.js"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
